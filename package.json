@@ -1,5 +1,5 @@
 {
-  "name": "salles_module",
+  "name": "@cours-esir/salles_module",
   "version": "3.0.0",
   "description": "Verify if a room is available, list all events of room",
   "main": "lib/index.js",
@@ -14,5 +14,12 @@
     "express": "^5.2.1",
     "ts-ics": "^2.4.0",
     "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cours-esir/salles_module"
   }
 }

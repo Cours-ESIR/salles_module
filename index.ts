@@ -50,7 +50,7 @@ function dichotomie(liste: Event[], datetime: Date, a: number, b: number): [bool
     }
 }
 
-export function salleLibres(cal: IcsCalendar, date: Date) {
+export function salleLibres(events: Event[], date: Date) {
     /*
         Retourne si la salle est libre (true) ou non (false) sur 
 
@@ -63,8 +63,6 @@ export function salleLibres(cal: IcsCalendar, date: Date) {
             - return.state : booléen : état de la salle ( libre : true , occupé : false )
             - return.until : int : date de fin de l'état (UNIX time)
     */
-
-    let events = cal.events!
 
     var req = dichotomie(events, date, 0, events.length - 1)
     var state = req[0]

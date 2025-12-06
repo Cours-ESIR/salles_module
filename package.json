@@ -4,8 +4,9 @@
   "description": "Verify if a room is available, list all events of room",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "type": "module",
   "scripts": {
-    "build1": "bun build --minify --sourcemap --outdir lib index.ts",
+    "build1": "bun build --minify --sourcemap --format=esm --outdir lib index.ts",
     "build2": "tsc --emitDeclarationOnly",
     "build": "bun run build1 && bun run build2",
     "test": "node tests/index.js"

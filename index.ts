@@ -106,3 +106,7 @@ export async function sallesEvents(rootUrl: string, resources: string[], project
 
 export let data = salles
 export type Event = IcsEvent
+
+let d1 = new Date()
+let d2 = new Date()
+d2.setDate(d1.getDate() + 14)

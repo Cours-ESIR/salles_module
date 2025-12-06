@@ -109,4 +109,4 @@ export async function sallesEvents(rootUrl : string, resources : string[], proje
 }
 
 export let data = salles
-export type IcsEvent = IcsEvent
+export type Event = IcsEvent

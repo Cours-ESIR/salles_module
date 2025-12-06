@@ -1,4 +1,10 @@
+/*
+Pour récupérer les resourcesId, vous pouvez lancer ce code dans l'inspecteur quand vous êtes sur ADE
 
+for (let el of document.querySelectorAll(".x-tree3-node")){
+	console.log(el.id.split("_")[1], el.innerText)
+}
+*/
 export let salles = [{
     "name": "Université de Rennes",
     "rootURL": "https://planning.univ-rennes1.fr",

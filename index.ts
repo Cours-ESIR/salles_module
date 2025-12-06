@@ -1,16 +1,16 @@
 import { convertIcsCalendar, type IcsCalendar, type IcsEvent } from "ts-ics";
 import { salles } from "./salles";
 
-function checkafter(liste:IcsEvent[],i:number){
-    let b = i+1
-    while ( liste[b] !== undefined && liste[i].end === liste[b].start ) {
+function checkafter(liste: Event[], i: number) {
+    let b = i + 1
+    while (liste[b] !== undefined && liste[i].end === liste[b].start) {
         i += 1
-        b = i+1
+        b = i + 1
     }
     return i
 }
 
-function dichotomie(liste:IcsEvent[],datetime:Date,a:number,b:number) : [boolean,number]{
+function dichotomie(liste: Event[], datetime: Date, a: number, b: number): [boolean, number] {
     /*
 
         Renvoie [x,y] 
@@ -19,38 +19,38 @@ function dichotomie(liste:IcsEvent[],datetime:Date,a:number,b:number) : [boolean
         y : number -> date a laquelle la salle ce statut change
       
     */
-   
-    if (b-a <= 1){
+
+    if (b - a <= 1) {
         var test0 = datetime < liste[a].start.date
         var test1 = liste[a].end!.date < datetime
         var test2 = datetime < liste[b].start.date
         var test3 = liste[b].end!.date < datetime // cas out of bound1
-        
 
-        if (test0){
-            return [false,a]
+
+        if (test0) {
+            return [false, a]
         }
-        else if (test1 && test2){
-            return [false,b]
+        else if (test1 && test2) {
+            return [false, b]
         }
         else if (test3) {
-            return [true,-1]
+            return [true, -1]
         }
-        else{
-            return [true,a]
+        else {
+            return [true, a]
         }
-         
+
     }
-    var m = Math.floor((b+a)/2)
+    var m = Math.floor((b + a) / 2)
     if (datetime < liste[m].end!.date) {
-        return dichotomie(liste,datetime,a,m)
+        return dichotomie(liste, datetime, a, m)
     }
-    else{
-        return dichotomie(liste,datetime,m,b)
+    else {
+        return dichotomie(liste, datetime, m, b)
     }
 }
 
-export function salleLibres(cal:IcsCalendar,date:Date){
+export function salleLibres(cal: IcsCalendar, date: Date) {
     /*
         Retourne si la salle est libre (true) ou non (false) sur 
 
@@ -66,24 +66,24 @@ export function salleLibres(cal:IcsCalendar,date:Date){
 
     let events = cal.events!
 
-    var req = dichotomie(events, date,0,events.length-1 )
-    var state = req[0]    
+    var req = dichotomie(events, date, 0, events.length - 1)
+    var state = req[0]
     var i = req[1]
     if (i == -1) {
-        return {"error":"Calendrier pas à jour"}
+        return { "error": "Calendrier pas à jour" }
     }
 
-    if (state){
-        i = checkafter(events,i) // vérification des évenements collés 
-        return {"state":"Occupé","until":events[i].end!.date}
+    if (state) {
+        i = checkafter(events, i) // vérification des évenements collés 
+        return { "state": "Occupé", "until": events[i].end!.date }
     }
-    else{
-        return {"state":"Libre","until":events[i].start.date}
+    else {
+        return { "state": "Libre", "until": events[i].start.date }
     }
 
 }
 
-export async function sallesEvents(rootUrl : string, resources : string[], project: string, start: Date, end: Date) : Promise<IcsEvent[]> {
+export async function sallesEvents(rootUrl: string, resources: string[], project: string, start: Date, end: Date): Promise<Event[]> {
     /*
         Retourne les horaires des cours/events d'une plage donnée dans une liste de salles données (ressources)
         
@@ -103,8 +103,8 @@ export async function sallesEvents(rootUrl : string, resources : string[], proje
     let req = await fetch(url)
     let resp = await req.text()
 
-    let events = convertIcsCalendar(undefined,resp).events || []
-    events.sort((a,b) => a.start.date.getTime() - b.start.date.getTime())
+    let events = convertIcsCalendar(undefined, resp).events || []
+    events.sort((a, b) => a.start.date.getTime() - b.start.date.getTime())
     return events;
 }
 

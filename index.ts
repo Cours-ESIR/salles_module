@@ -1,17 +1,16 @@
-let base_url = "https://beaulieu-camp.github.io/salles"
+import { convertIcsCalendar, type IcsCalendar, type IcsDateObject, type IcsEvent } from "ts-ics";
+import { salles } from "./salles";
 
-type Event = [number,number,string]
-
-function checkafter(liste:Event[],i:number){
+function checkafter(liste:IcsEvent[],i:number){
     let b = i+1
-    while ( liste[b] !== undefined && liste[i][1] === liste[b][0] ) {
+    while ( liste[b] !== undefined && liste[i].end === liste[b].start ) {
         i += 1
         b = i+1
     }
     return i
 }
 
-function dichotomie(liste:Event[],datetime:number,a:number,b:number) : [boolean,number]{
+function dichotomie(liste:IcsEvent[],datetime:Date,a:number,b:number) : [boolean,number]{
     /*
 
         Renvoie [x,y] 
@@ -22,10 +21,10 @@ function dichotomie(liste:Event[],datetime:number,a:number,b:number) : [boolean,
     */
    
     if (b-a <= 1){
-        var test0 = datetime < liste[a][0] 
-        var test1 = liste[a][1] < datetime
-        var test2 = datetime < liste[b][0]
-        var test3 = liste[b][1] < datetime // cas out of bound1
+        var test0 = datetime < liste[a].start.date
+        var test1 = liste[a].end!.date < datetime
+        var test2 = datetime < liste[b].start.date
+        var test3 = liste[b].end!.date < datetime // cas out of bound1
         
 
         if (test0){
@@ -43,7 +42,7 @@ function dichotomie(liste:Event[],datetime:number,a:number,b:number) : [boolean,
          
     }
     var m = Math.floor((b+a)/2)
-    if (datetime < liste[m][1]) {
+    if (datetime < liste[m].end!.date) {
         return dichotomie(liste,datetime,a,m)
     }
     else{
@@ -51,7 +50,7 @@ function dichotomie(liste:Event[],datetime:number,a:number,b:number) : [boolean,
     }
 }
 
-export async function salleLibres(salle:string,date:number){
+export function salleLibres(cal:IcsCalendar,date:Date){
     /*
         Retourne si la salle est libre (true) ou non (false) sur 
 
@@ -65,29 +64,28 @@ export async function salleLibres(salle:string,date:number){
             - return.until : int : date de fin de l'état (UNIX time)
     */
 
-    let cal = await ( await fetch(base_url + "/" + salle + ".json") ).json()
+    let events = cal.events!
 
-
-    var req = dichotomie(cal, date,0,cal.length-1 )
+    var req = dichotomie(events, date,0,events.length-1 )
     var state = req[0]    
     var i = req[1]
     if (i == -1) {
         return {"error":"Calendrier pas à jour"}
     }
-    console.log(state)
+
     if (state){
-        i = checkafter(cal,i) // vérification des évenements collés 
-        return {"state":"Occupé","until":cal[i][1]}
+        i = checkafter(events,i) // vérification des évenements collés 
+        return {"state":"Occupé","until":events[i].end!.date}
     }
     else{
-        return {"state":"Libre","until":cal[i][0]}
+        return {"state":"Libre","until":events[i].start.date}
     }
 
 }
 
-export async function salleEvents(salle:string,date:number){
+export async function sallesEvents(rootUrl : string, resources : string[], project: string, start: Date, end: Date) : Promise<IcsCalendar> {
     /*
-        Retourne les horaires des cours/events d'une journée donnée dans une salle donnée
+        Retourne les horaires des cours/events d'une plage donnée dans une liste de salles données (ressources)
         
         Args:
             - salle : string
@@ -95,26 +93,17 @@ export async function salleEvents(salle:string,date:number){
         return : 
             - liste des events d'une journée
     */
-    
-    let cal = await ( await fetch(base_url + "/" + salle + ".json") ).json()
 
-    var req = dichotomie(cal,date,0,cal.length-1)  
-    var i = req[1]
+    let url = rootUrl + "/jsp/custom/modules/plannings/anonymous_cal.jsp?resources={resources}&projectId={projectId}&firstDate={date-start}&lastDate={date-end}"
 
-    var liste = []
-    while (cal[i][1] < date + 24*60*60){
-        liste.push(cal[i])
-        i+=1
-    }
-    return liste
+    url = url.replace("{resources}", resources.join(","))
+    url = url.replace("{projectId}", project)
+    url = url.replace("{date-start}", start.toISOString().split("T")[0])
+    url = url.replace("{date-end}", end.toISOString().split("T")[0])
+    let req = await fetch(url)
+    let resp = await req.text()
+
+    return convertIcsCalendar(undefined,resp);
 }
 
-export function convert_unix_to_local(unix:number){
-    var offset = new Date().getTimezoneOffset();
-    offset = offset*60*1000
-    return new Date(unix-offset)
-}
-
-export async function getSalles(){
-    return await ( await fetch(base_url + "/salles.json") ).json()
-}
+export let data = salles

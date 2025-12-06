@@ -1,4 +1,4 @@
-import { convertIcsCalendar, type IcsCalendar, type IcsDateObject, type IcsEvent } from "ts-ics";
+import { convertIcsCalendar, type IcsCalendar, type IcsEvent } from "ts-ics";
 import { salles } from "./salles";
 
 function checkafter(liste:IcsEvent[],i:number){
@@ -83,7 +83,7 @@ export function salleLibres(cal:IcsCalendar,date:Date){
 
 }
 
-export async function sallesEvents(rootUrl : string, resources : string[], project: string, start: Date, end: Date) : Promise<IcsCalendar> {
+export async function sallesEvents(rootUrl : string, resources : string[], project: string, start: Date, end: Date) : Promise<IcsEvent[]> {
     /*
         Retourne les horaires des cours/events d'une plage donnée dans une liste de salles données (ressources)
         
@@ -103,7 +103,10 @@ export async function sallesEvents(rootUrl : string, resources : string[], proje
     let req = await fetch(url)
     let resp = await req.text()
 
-    return convertIcsCalendar(undefined,resp);
+    let events = convertIcsCalendar(undefined,resp).events || []
+    events.sort((a,b) => a.start.date.getTime() - b.start.date.getTime())
+    return events;
 }
 
 export let data = salles
+export type IcsEvent = IcsEvent

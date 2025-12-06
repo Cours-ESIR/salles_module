@@ -21,6 +21,15 @@ export let salles = [
 	    "name": "Université de Rennes",
 	    "rootURL": "https://planning.univ-rennes1.fr",
 	    "buildings": [
+			{
+	            "name": "B40",
+	            "rooms": [
+	                { "name": "007", "projectId": "1", "resourceId": "18444" },
+	                { "name": "009", "projectId": "1", "resourceId": "18341" },
+	                { "name": "011", "projectId": "1", "resourceId": "21029" },
+	                { "name": "013", "projectId": "1", "resourceId": "22246" }
+	            ]
+	        },
 	        {
 	            "name": "B41",
 	            "rooms": [

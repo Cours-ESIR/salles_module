@@ -5,7 +5,9 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build1": "bun build --minify --sourcemap --outdir lib index.ts",
+    "build2": "tsc --emitDeclarationOnly",
+    "build": "bun run build1 && bun run build2",
     "test": "node tests/index.js"
   },
   "author": "Tom Chauvel @AquaBx",

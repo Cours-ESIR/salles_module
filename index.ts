@@ -91,13 +91,11 @@ export async function sallesEvents(rootUrl: string, resources: string[], project
         return : 
             - liste des events d'une journée
     */
+    let dtstart = start.toISOString().split("T")[0]
+    let dtend = end.toISOString().split("T")[0]
 
-    let url = rootUrl + "/jsp/custom/modules/plannings/anonymous_cal.jsp?resources={resources}&projectId={projectId}&firstDate={date-start}&lastDate={date-end}"
+    let url = rootUrl + `/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=${resources.join(",")}&projectId=${project}&firstDate=${dtstart}&lastDate=${dtend}`
 
-    url = url.replace("{resources}", resources.join(","))
-    url = url.replace("{projectId}", project)
-    url = url.replace("{date-start}", start.toISOString().split("T")[0])
-    url = url.replace("{date-end}", end.toISOString().split("T")[0])
     let req = await fetch(url)
     let resp = await req.text()
 

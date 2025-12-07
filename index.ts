@@ -120,7 +120,7 @@ function getBounds(polygon: GeoJSONPolygon): [[number, number], [number, number]
         }
     }
 
-    return [[latmin, lonmin], [latmax, lonmax]]
+    return [[latmin!, lonmin!], [latmax!, lonmax!]]
 }
 
 export function buildingToGeojsonFeature(building: Building) {

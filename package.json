@@ -1,6 +1,6 @@
 {
   "name": "@cours-esir/salles_module",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Verify if a room is available, list all events of room",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

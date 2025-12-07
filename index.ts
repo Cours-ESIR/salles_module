@@ -1,5 +1,5 @@
-import { convertIcsCalendar, type IcsCalendar, type IcsEvent } from "ts-ics";
-import { salles } from "./salles";
+import { convertIcsCalendar, type IcsEvent } from "ts-ics";
+import { Building, GeoJSONPolygon, universities, University } from "./salles";
 
 function checkafter(liste: Event[], i: number) {
     let b = i + 1
@@ -104,9 +104,51 @@ export async function sallesEvents(rootUrl: string, resources: string[], project
     return events;
 }
 
-export let data = salles
-export type Event = IcsEvent
+function getBounds(polygon: GeoJSONPolygon): [[number, number], [number, number]] {
+    let latmax
+    let latmin
+    let lonmax
+    let lonmin
 
-let d1 = new Date()
-let d2 = new Date()
-d2.setDate(d1.getDate() + 14)
+    for (let liste of polygon) {
+        for (let coords of liste) {
+            if (latmax === undefined || coords[0] > latmax) latmax = coords[0]
+            else if (latmin === undefined || coords[0] < latmin) latmin = coords[0]
+
+            if (lonmax === undefined || coords[1] > lonmax) lonmax = coords[1]
+            else if (lonmin === undefined || coords[1] < lonmin) lonmin = coords[1]
+        }
+    }
+
+    return [[latmin, lonmin], [latmax, lonmax]]
+}
+
+export function buildingToGeojsonFeature(building: Building) {
+    let { polygon, rooms, ...properties } = building;
+    return {
+        "type": "Feature",
+        "properties": { ...properties, bounds: getBounds(polygon) },
+        "geometry": { "type": "Polygon", "coordinates": polygon }
+    }
+}
+
+export function universityToGeojsonFeatureCollection(university: University) {
+    let { name, buildings } = university;
+    return {
+        "type": "FeatureCollection",
+        "name": name,
+        "features": buildings.map(buildingToGeojsonFeature)
+    }
+}
+
+export function getAllLayers(university: University) {
+    let { name, buildings } = university;
+    return {
+        "type": "FeatureCollection",
+        "name": name,
+        "features": buildings.map(buildingToGeojsonFeature)
+    }
+}
+
+export type Event = IcsEvent
+export * from "./salles"
